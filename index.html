@@ -12,7 +12,7 @@
         /* متغيرات الألوان */
         :root {
             --primary-color: #A65E00;
-            --primary-light: #F0C090; /* لون فاتح من اللون الأساسي */
+            --primary-light: #F0C090;
             --light-bg: #ffffff;
             --light-text: #333333;
             --dark-bg: #0F0600;
@@ -518,54 +518,122 @@
             background-color: rgba(237, 209, 175, 0.1);
         }
 
-        /* أزرار الحضور مع المؤشر المتحرك */
+        /* أزرار الحضور */
         .attendance-options {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             position: relative;
-            padding-bottom: 5px; /* مساحة للمؤشر */
-        }
-
-        /* المؤشر المتحرك */
-        .attendance-slider {
-            position: absolute;
-            bottom: 0;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-            z-index: 1;
         }
 
         .attendance-btn {
-            background-color: white;
-            color: var(--primary-color);
-            border: none;
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 8px 15px;
+            padding: 10px 15px;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: bold;
-            min-width: 90px;
+            min-width: 130px;
             text-align: center;
             position: relative;
-            z-index: 2;
-            transition: color 0.3s;
+            transition: all 0.3s ease;
+            flex: 1;
         }
 
-        .attendance-btn.selected {
-            color: var(--primary-color);
-            /* الخلفية ستكون بيضاء/داكنة، التمييز بالمؤشر */
+        /* حاضر - أخضر شجري */
+        .attendance-btn.present {
+            color: #2d5a27;
+            border-color: #a8d5a0;
+            background-color: #f0f9ef;
         }
 
+        .attendance-btn.present.selected {
+            background-color: #2d5a27;
+            color: white;
+            border-color: #1f3d1a;
+        }
+
+        /* مستأذن - برتقالي مصفر */
+        .attendance-btn.mustaathan {
+            color: #d18c1a;
+            border-color: #f0c090;
+            background-color: #fef6eb;
+        }
+
+        .attendance-btn.mustaathan.selected {
+            background-color: #d18c1a;
+            color: white;
+            border-color: #a65e00;
+        }
+
+        /* غائب - أحمر مائل للبرتقالي */
+        .attendance-btn.ghaib {
+            color: #b35a2d;
+            border-color: #e8b8a0;
+            background-color: #fdf1eb;
+        }
+
+        .attendance-btn.ghaib.selected {
+            background-color: #b35a2d;
+            color: white;
+            border-color: #8c4523;
+        }
+
+        /* أيقونة ✓ للأزرار المحددة */
+        .attendance-btn.selected::after {
+            content: ' ✓';
+            font-weight: bold;
+        }
+
+        /* تحسين العرض على الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .attendance-btn {
+                min-width: 100px;
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ألوان الوضع الداكن */
         body.dark-mode .attendance-btn {
-            background-color: var(--dark-card-bg);
-            color: var(--dark-text);
+            background-color: #2a1f15;
+            color: #e0d6c8;
+            border-color: #3a2c1c;
         }
 
-        body.dark-mode .attendance-slider {
-            background-color: var(--primary-color);
+        body.dark-mode .attendance-btn.present {
+            color: #7dbd77;
+            border-color: #4d7c4d;
+            background-color: #1a2d1a;
+        }
+
+        body.dark-mode .attendance-btn.present.selected {
+            background-color: #4d7c4d;
+            color: #e0f7e0;
+        }
+
+        body.dark-mode .attendance-btn.mustaathan {
+            color: #e8b56b;
+            border-color: #8a5a2a;
+            background-color: #2d241a;
+        }
+
+        body.dark-mode .attendance-btn.mustaathan.selected {
+            background-color: #8a5a2a;
+            color: #fcecd6;
+        }
+
+        body.dark-mode .attendance-btn.ghaib {
+            color: #dd8c77;
+            border-color: #7c3a2a;
+            background-color: #301a1a;
+        }
+
+        body.dark-mode .attendance-btn.ghaib.selected {
+            background-color: #7c3a2a;
+            color: #ffe6e0;
         }
 
         /* صفحة إدارة الطلاب */
@@ -860,7 +928,7 @@
             
             <div class="form-group">
                 <label for="teacherName">اسم المعلم:</label>
-                <input type="text" id="teacherName" placeholder="أدخل اسم المعلم (بدون أ/)">
+                <input type="text" id="teacherName" placeholder="اسم المعلم (كامل حتى اللقب)">
             </div>
             
             <div class="toggle-container">
@@ -1011,34 +1079,6 @@
         const cancelReturnBtn = document.getElementById('cancelReturnBtn');
         const closeReturnModalBtn = confirmReturnModal.querySelector('.close-modal');
 
-        // دالة لتحريك المؤشر
-        function moveSlider(button, container) {
-            const slider = container.querySelector('.attendance-slider');
-            if (!slider) return;
-            
-            // حساب موقع الزر بالنسبة للحاوية
-            const buttonRect = button.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-            
-            // حساب المسافة من اليمين (لأن الاتجاه RTL)
-            const rightDistance = buttonRect.right - containerRect.right;
-            const buttonWidth = button.offsetWidth;
-            
-            // تحريك المؤشر
-            slider.style.width = `${buttonWidth}px`;
-            slider.style.right = `${-rightDistance}px`;
-        }
-
-        // دالة لتهيئة المؤشر عند تحميل الصفحة
-        function initAttendanceSliders() {
-            document.querySelectorAll('.attendance-options').forEach(container => {
-                const selectedBtn = container.querySelector('.attendance-btn.selected');
-                if (selectedBtn) {
-                    moveSlider(selectedBtn, container);
-                }
-            });
-        }
-
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
@@ -1055,9 +1095,6 @@
             // إضافة معالجي الأحداث
             setupEventListeners();
             setupModals();
-            
-            // تهيئة المؤشرات بعد تحميل الصفحة بقليل
-            setTimeout(initAttendanceSliders, 100);
         });
 
         // تحميل البيانات من localStorage
@@ -1085,12 +1122,16 @@
                     
                     // إذا كانت القيمة boolean (من النسخة القديمة مع checkbox)
                     if (typeof value === 'boolean') {
-                        appData.attendance[date][student] = value ? "حاضر" : "";
+                        appData.attendance[date][student] = value ? "حاضر" : "غائب";
                     }
                     
-                    // إذا كانت القيمة "غائب" نتركها فارغة
-                    if (value === "غائب") {
-                        appData.attendance[date][student] = "";
+                    // إذا كانت القيمة قديمة، تحويلها إلى النظام الجديد
+                    if (value === "مستأذن" || value === "غائب إجازة" || 
+                        value === "غائب مرض" || value === "غائب بدون عذر") {
+                        // نتركها كما هي أو نحول "غائب بدون عذر" إلى "غائب"
+                        if (value === "غائب بدون عذر") {
+                            appData.attendance[date][student] = "غائب";
+                        }
                     }
                 }
             }
@@ -1110,25 +1151,12 @@
         function updateUI() {
             // تحديث الإعدادات
             document.getElementById('halqaName').value = appData.halqaName;
-            
-            // إزالة "أ/" من اسم المعلم عند التحرير
-            let teacherName = appData.teacherName;
-            if (teacherName.startsWith('أ/')) {
-                teacherName = teacherName.substring(2).trim();
-            }
-            document.getElementById('teacherName').value = teacherName;
-            
+            document.getElementById('teacherName').value = appData.teacherName;
             document.getElementById('darkModeToggle').checked = appData.darkMode;
             
             // تحديث الصفحة الرئيسية
             document.getElementById('halqaNameDisplay').textContent = appData.halqaName;
-            
-            // إضافة "أ/" تلقائياً قبل اسم المعلم
-            let displayTeacherName = appData.teacherName;
-            if (!displayTeacherName.startsWith('أ/')) {
-                displayTeacherName = 'أ/ ' + displayTeacherName;
-            }
-            document.getElementById('teacherNameDisplay').textContent = displayTeacherName;
+            document.getElementById('teacherNameDisplay').textContent = appData.teacherName;
             
             // تطبيق الوضع الداكن
             if (appData.darkMode) {
@@ -1141,14 +1169,7 @@
         // حفظ الإعدادات
         function saveSettings() {
             appData.halqaName = document.getElementById('halqaName').value || 'حلقة القرآن الكريم';
-            
-            // الحصول على اسم المعلم وإضافة "أ/" تلقائياً
-            let teacherName = document.getElementById('teacherName').value.trim() || 'المعلم';
-            if (!teacherName.startsWith('أ/')) {
-                teacherName = 'أ/ ' + teacherName;
-            }
-            appData.teacherName = teacherName;
-            
+            appData.teacherName = document.getElementById('teacherName').value.trim() || 'المعلم';
             appData.darkMode = document.getElementById('darkModeToggle').checked;
             
             saveData();
@@ -1236,8 +1257,12 @@
             attendanceList.innerHTML = '';
             const date = document.getElementById('attendanceDate').value;
             
-            // الحالات الممكنة للحضور
-            const statuses = ["حاضر", "غائب", "مستأذن"];
+            // الحالات الممكنة للحضور (3 خيارات فقط)
+            const statuses = [
+                { id: "present", label: "حاضر" },
+                { id: "mustaathan", label: "مستأذن" },
+                { id: "ghaib", label: "غائب" }
+            ];
             
             // تهيئة بيانات الحضور لهذا التاريخ إذا لم تكن موجودة
             if (!appData.attendance[date]) {
@@ -1256,26 +1281,18 @@
                 const optionsContainer = document.createElement('div');
                 optionsContainer.className = 'attendance-options';
                 
-                // إضافة المؤشر المتحرك
-                const slider = document.createElement('div');
-                slider.className = 'attendance-slider';
-                optionsContainer.appendChild(slider);
-                
                 // الحالة الحالية للطالب
                 const currentStatus = appData.attendance[date][student] || "";
-                
-                let selectedButton = null;
                 
                 statuses.forEach(status => {
                     // إنشاء زر لكل حالة
                     const statusBtn = document.createElement('button');
-                    statusBtn.textContent = status;
-                    statusBtn.className = 'attendance-btn';
+                    statusBtn.textContent = status.label;
+                    statusBtn.className = `attendance-btn ${status.id}`;
                     
                     // إذا كانت هذه هي الحالة الحالية، أضف class "selected"
-                    if (currentStatus === status) {
+                    if (currentStatus === status.label) {
                         statusBtn.classList.add('selected');
-                        selectedButton = statusBtn;
                     }
                     
                     // عند النقر على الزر
@@ -1288,27 +1305,13 @@
                         // إضافة class "selected" للزر الذي تم النقر عليه
                         statusBtn.classList.add('selected');
                         
-                        // تحريك المؤشر إلى الزر المختار
-                        moveSlider(statusBtn, optionsContainer);
-                        
                         // حفظ الحالة الجديدة
-                        appData.attendance[date][student] = status;
+                        appData.attendance[date][student] = status.label;
                         saveData();
                     };
                     
                     optionsContainer.appendChild(statusBtn);
                 });
-                
-                // تهيئة موقع المؤشر إذا كان هناك زر محدد
-                if (selectedButton) {
-                    // انتظر قليلاً حتى يتم رسم الأزرار
-                    setTimeout(() => {
-                        moveSlider(selectedButton, optionsContainer);
-                    }, 10);
-                } else {
-                    // إخفاء المؤشر إذا لم يكن هناك اختيار
-                    slider.style.width = '0';
-                }
                 
                 attendanceCell.appendChild(optionsContainer);
                 row.appendChild(nameCell);
@@ -1627,10 +1630,7 @@
             addStudentBtn.addEventListener('click', addStudent);
             
             // تغيير التاريخ
-            document.getElementById('attendanceDate').addEventListener('change', () => {
-                renderAttendancePage();
-                setTimeout(initAttendanceSliders, 100);
-            });
+            document.getElementById('attendanceDate').addEventListener('change', renderAttendancePage);
             document.getElementById('tarteebDate').addEventListener('change', renderTarteebPage);
             
             // إضافة الطالب بالضغط على Enter
@@ -1638,11 +1638,6 @@
                 if (e.key === 'Enter') {
                     addStudent();
                 }
-            });
-            
-            // إعادة حساب المؤشرات عند تغيير حجم النافذة
-            window.addEventListener('resize', () => {
-                setTimeout(initAttendanceSliders, 100);
             });
         }
     </script>
